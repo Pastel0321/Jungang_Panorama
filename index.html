@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>근현대전 파노라마</title>
+
+    <style>
+
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================
+   파노라마 정보 버튼
+========================= */
+
+#redButton {
+    position: fixed;
+
+    right: 30px;
+    bottom: 30px;
+
+    width: 70px;
+    height: 70px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #e53935;
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    z-index: 100;
+
+    transition: 0.2s ease;
+
+    display: none;
+}
+
+#redButton:hover {
+    background: #ff4b47;
+    transform: translateY(-3px);
+}
+
+#redButton:active {
+    transform: scale(0.96);
+}
+
+
+    /* =========================
+    정보 팝업 배경
+    ========================= */
+
+    #overlay {
+        position: fixed;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background: rgba(0, 0, 0, 0.65);
+
+        opacity: 0;
+        visibility: hidden;
+
+        transition:
+            opacity 0.3s ease,
+            visibility 0.3s ease;
+
+        z-index: 200;
+    }
+
+    #overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+
+    /* =========================
+    정보 팝업
+    ========================= */
+
+    #popup {
+        position: relative;
+
+        width: min(750px, 90%);
+        min-height: 450px;
+
+        padding: 45px;
+
+        background: white;
+        border-radius: 28px;
+
+        box-shadow:
+            0 25px 80px rgba(0, 0, 0, 0.5);
+
+        transform: translateY(30px) scale(0.9);
+
+        transition: transform 0.3s ease;
+    }
+
+    #overlay.active #popup {
+        transform: translateY(0) scale(1);
+    }
+
+
+    /* 사진 */
+
+    #popupImage {
+        position: absolute;
+
+        top: 45px;
+        left: 45px;
+
+        width: 180px;
+        height: 220px;
+
+        object-fit: cover;
+
+        border-radius: 12px;
+
+        box-shadow:
+            0 8px 25px rgba(0, 0, 0, 0.25);
+    }
+
+
+    /* 내용 */
+
+    #popupContent {
+        margin-left: 220px;
+        padding-top: 20px;
+    }
+
+    #popup h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+
+        color: #222;
+        font-size: 30px;
+    }
+
+    #popup p {
+        color: #555;
+        line-height: 1.8;
+        font-size: 17px;
+    }
+
+
+    /* 닫기 */
+
+    #closeButton {
+        position: absolute;
+
+        top: 15px;
+        right: 20px;
+
+        width: 40px;
+        height: 40px;
+
+        border: none;
+        border-radius: 50%;
+
+        background: #eee;
+        color: #555;
+
+        font-size: 28px;
+        line-height: 40px;
+
+        cursor: pointer;
+    }
+
+    #closeButton:hover {
+        background: #ddd;
+        color: #000;
+    }
+
+
+    /* =========================
+    모바일
+    ========================= */
+
+    @media (max-width: 600px) {
+
+        #redButton {
+            right: 20px;
+            bottom: 20px;
+
+            width: 60px;
+            height: 60px;
+
+            font-size: 16px;
+        }
+
+        #popup {
+            width: 90%;
+            min-height: 500px;
+
+            padding: 30px;
+        }
+
+        #popupImage {
+            position: relative;
+
+            top: auto;
+            left: auto;
+
+            width: 140px;
+            height: 170px;
+
+            display: block;
+
+            margin-bottom: 20px;
+        }
+
+        #popupContent {
+            margin-left: 0;
+            padding-top: 0;
+        }
+    }
+
+        /* =========================
+           장소 선택 화면
+        ========================= */
+
+        #mapScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+
+            padding-top: 3vh;
+            box-sizing: border-box;
+
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           배경 사진 + 블러
+        ========================= */
+
+        #mapScreen::before {
+            content: "";
+
+            position: absolute;
+            inset: -20px;
+
+            background: url("map.jpg") center/cover no-repeat;
+
+            filter: blur(5px);
+
+            z-index: -1;
+        }
+
+
+        /* =========================
+           제목
+        ========================= */
+
+        #mapScreen h1 {
+            position: absolute;
+
+            left: 20%;
+            top: 10%;
+
+            margin: 0;
+
+            font-size: clamp(30px, 4vw, 50px);
+
+            color: white;
+
+            text-shadow:
+                2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+
+        /* =========================
+           지도
+        ========================= */
+
+        #map {
+            position: absolute;
+
+            /*
+                화면 크기에 따라 지도 크기 조절
+            */
+            width: min(45vw, 900px);
+
+            aspect-ratio: 4 / 3;
+
+            /*
+                화면 기준 위치
+            */
+            left: 9%;
+            top: 25%;
+
+            background: rgba(216, 216, 216, 0.3);
+
+            border: 2px solid #aaa;
+            border-radius: 15px;
+
+            overflow: hidden;
+        }
+
+
+        /* =========================
+           오른쪽 정보 화면
+        ========================= */
+
+        .infoScreen {
+            position: absolute;
+
+            /*
+                화면 기준 위치
+            */
+            left: 55%;
+            top: 0;
+
+            width: 45%;
+            height: 100%;
+
+            background: rgba(19, 19, 19, 0.7);
+
+            padding: 2vw;
+
+            box-sizing: border-box;
+        }
+
+
+        .infoScreen h2 {
+            text-align: center;
+
+            margin: 0;
+
+            padding-top: 3vh;
+
+            font-weight: 1000;
+
+            font-family:
+                'Segoe UI',
+                Tahoma,
+                Geneva,
+                Verdana,
+                sans-serif;
+
+            font-size: clamp(25px, 2.6vw, 50px);
+
+            letter-spacing: 2px;
+
+            color: white;
+        }
+
+
+        /* =========================
+           도로
+        ========================= */
+
+        .road {
+            position: absolute;
+
+            background: #ffffff;
+        }
+
+
+        .road1 {
+            width: 100%;
+            height: 10%;
+
+            top: 40%;
+            left: 0;
+        }
+
+
+        .road2 {
+            width: 10%;
+            height: 100%;
+
+            top: 0;
+            left: 55%;
+        }
+
+
+        /* =========================
+           지도 핀
+        ========================= */
+
+        .mapPin {
+            position: absolute;
+
+            border: none;
+            background: none;
+
+            /*
+                화면 크기에 따라 핀도 조금씩 조절
+            */
+            font-size: clamp(30px, 3vw, 40px);
+
+            cursor: pointer;
+
+            transform:
+                translate(-50%, -50%);
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+        }
+
+
+        .mapPin span {
+            font-size: clamp(10px, 1.2vw, 14px);
+
+            font-weight: bold;
+
+            background: white;
+
+            padding: 3px 7px;
+
+            border-radius: 6px;
+
+            white-space: nowrap;
+        }
+
+
+        .mapPin:active {
+            transform:
+                translate(-50%, -50%)
+                scale(0.9);
+        }
+
+
+        /* =========================
+           패드 / 세로 화면 대응
+        ========================= */
+
+        @media (max-aspect-ratio: 1/1) {
+
+        #mapScreen h1 {
+            left: 5%;   
+            top: 3%;
+        }
+
+       #map {
+            width: 80vw;
+            left: 50%;
+            top: 25%;
+            transform: translateX(-50%);
+        }
+
+        .infoScreen {
+            left: 0;
+            top: 0;
+
+            width: 100%;
+            height: 20%;
+
+            background: rgba(19, 19, 19, 0.7);
+        }
+
+        .infoScreen h2 {
+            padding-top: 2vh;
+        }
+
+    }
+
+        /* =========================
+   장소 정보창
+========================= */
+
+/* =========================
+   장소 정보 팝업
+========================= */
+/* =========================
+   장소 정보 팝업
+========================= */
+
+#infoPanel {
+    position: fixed;
+
+    left: 50%;
+    top: 50%;
+
+    width: min(750px, 90%);
+    min-height: 450px;
+
+    padding: 45px;
+
+    box-sizing: border-box;
+
+    background: white;
+
+    border-radius: 28px;
+
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.5);
+
+    z-index: 200;
+
+    /* 처음에는 안 보임 */
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translate(-50%, -50%) scale(0.9);
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease,
+        transform 0.3s ease;
+}
+
+#infoPanel.active {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translate(-50%, -50%) scale(1);
+}
+
+
+/* 사진 */
+
+#infoImage {
+    position: absolute;
+
+    top: 45px;
+    left: 45px;
+
+    width: 180px;
+    height: 220px;
+
+    object-fit: cover;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+
+/* 내용 */
+
+#infoText {
+    margin-left: 220px;
+
+    padding-top: 20px;
+}
+
+
+#infoTitle {
+    margin-top: 0;
+    margin-bottom: 20px;
+
+    color: #222;
+
+    font-size: 30px;
+}
+
+
+#infoDescription {
+    color: #555;
+
+    line-height: 1.8;
+
+    font-size: 17px;
+}
+
+
+/* 닫기 */
+
+#infoClose {
+    position: absolute;
+
+    top: 15px;
+    right: 20px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #eee;
+    color: #555;
+
+    font-size: 28px;
+    line-height: 40px;
+
+    cursor: pointer;
+}
+
+#infoButton {
+    position: fixed;
+
+    right: 25px;
+    top: 25px;
+
+    z-index: 50;
+
+    display: none;
+
+    border: none;
+    border-radius: 10px;
+
+    padding: 12px 20px;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#backButton {
+    display: none;
+
+    position: fixed;
+    left: 25px;
+    top: 25px;
+    z-index: 50;
+
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@media screen and (orientation: landscape) {
+
+    #map {
+        width: 45vw !important;
+        left: 5% !important;
+        top: 25% !important;
+    }
+
+    .infoScreen {
+        left: 55% !important;
+        width: 45% !important;
+    }
+
+}
+
+#detailButton {
+    position: absolute;
+    left: 65px;
+    top: 285px;
+    display: block;
+    padding: 10px 18px;
+    background: #333;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+#detailButton:hover {
+    background: #555;
+}
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="mapScreen">
+
+    <h1>장소를 선택하세요</h1>
+
+
+    <!-- 오른쪽 정보 화면 -->
+
+    <div class="infoScreen">
+
+        <h2>대전으로 떠나는 파노라마 체험</h2>
+
+    </div>
+
+
+    <!-- 지도 -->
+
+    <div id="map">
+
+        <div class="road road1"></div>
+
+        <div class="road road2"></div>
+
+
+        <!-- 현충원 -->
+
+   <!-- 현충원 -->
+<button
+    class="mapPin"
+    data-panorama="panorama1.jpg"
+    data-title="현충원"
+    data-description="예시 설명"
+    data-image="hyeonchungwon.jpg"
+    data-link="https://namu.wiki/w/%EA%B5%AD%EB%A6%BD%ED%98%84%EC%B6%A9%EC%9B%90"
+    style="left: 30%; top: 30%;">
+
+    📍
+    <span>현충원</span>
+</button>
+
+
+<!-- 소제동 -->
+<button
+    class="mapPin"
+    data-panorama="panorama2.jpg"
+    data-title="대전 소제동"
+    data-description="대전의 근현대 역사와 철도 문화가 남아 있는 지역입니다."
+    data-image="sojedong.jpg"
+    data-link="소제동_링크"
+    style="left: 80%; top: 60%;">
+
+    📍
+    <span>소제동</span>
+</button>
+
+
+<!-- 대전역 -->
+<button
+    class="mapPin"
+    data-panorama="panorama3.jpg"
+    data-title="대전역"
+    data-description="대전의 철도 교통과 도시 발전의 중심이 된 장소입니다."
+    data-image="daejeonstation.jpg"
+    data-link="대전역_링크"
+    style="left: 45%; top: 70%;">
+
+    📍
+    <span>대전역</span>
+</button>
+
+    </div>
+
+</div>
+
+
+<div id="viewer"></div>
+
+
+<script
+    type="module"
+    src="script.js">
+</script>
+
+<!-- =========================
+     파노라마 정보 버튼
+========================= -->
+
+<div id="infoPanel">
+
+    <img id="infoImage" src="" alt="장소 사진">
+
+    <div id="infoText">
+    <h2 id="infoTitle"></h2>
+    <p id="infoDescription"></p>
+
+    <a
+        id="detailButton"
+        href="https://namu.wiki/w/%EA%B5%AD%EB%A6%BD%ED%98%84%EC%B6%A9%EC%9B%90"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        자세히 알아보기
+    </a>
+</div>
+
+    <button id="infoClose">×</button>
+
+</div>
+
+<button id="infoButton">ⓘ 정보</button>
+<button id="backButton">← 돌아가기</button>
+
+</body>
+</html>
