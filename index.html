@@ -39,51 +39,251 @@
             }
         }
 
-        /* 시작 화면 */
-        #startScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 10;
+        /* =========================
+   메인 홈 화면
+========================= */
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 25px;
+#startScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
 
-            background:
-                linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65)),
-                url("map.jpg") center/cover no-repeat;
-        }
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
 
-        #startScreen h1 {
-            color: white;
-            font-size: clamp(30px, 4vw, 50px);
-            margin: 0 0 20px;
-            text-shadow: 2px 2px 5px #000;
-        }
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 
-        .startButton {
-            width: min(350px, 70vw);
-            padding: 20px;
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 12px;
+    background: url("map.jpg") center / cover no-repeat;
+}
 
-            background: rgba(20,20,20,0.75);
-            color: white;
 
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
+/* =========================
+   왼쪽 영역
+========================= */
 
-            transition: 0.2s;
-        }
+#homeLeft {
+    min-width: 0;
+    min-height: 0;
 
-        .startButton:hover {
-            background: rgba(70,70,70,0.9);
-            transform: scale(1.03);
-        }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
+    padding: clamp(20px, 4vw, 55px);
+}
+
+#homeLeft h1 {
+    position: fixed;
+    left: 30%;
+    top: 10%;
+    transform: translate(-50%, -50%);
+
+    width: 55%;
+    margin: 0;
+
+    color: white;
+    font-size: clamp(25px, 3.5vw, 48px);
+    font-weight: 900;
+    line-height: 1.35;
+    text-align: center;
+
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+}
+
+
+/* 지도 이미지 */
+
+#mapImageBox {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#daejeonMap {
+    display: block;
+
+    width: min(100%, 850px);
+    height: 100%;
+
+    object-fit: contain;
+
+    transform: translateY(20px);
+
+    user-select: none;
+    pointer-events: none;
+}
+
+
+/* =========================
+   오른쪽 영역
+========================= */
+
+#homeRight {
+    min-width: 0;
+    min-height: 0;
+
+    padding: clamp(12px, 1.8vw, 25px);
+
+    background: rgba(120, 120, 120, 0.75);
+
+    overflow: hidden;
+}
+
+
+/* 장소 카드 목록 */
+
+#placeList {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: clamp(10px, 1.5vh, 18px);
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 3px;
+}
+
+
+/* =========================
+   장소 카드
+========================= */
+
+.placeCard {
+    width: 100%;
+    min-height: 0;
+    flex: 1 0 120px;
+
+    display: flex;
+    align-items: center;
+
+    gap: clamp(10px, 1.2vw, 18px);
+
+    padding: clamp(10px, 1.2vw, 16px);
+
+    border: none;
+    border-radius: 16px;
+
+    background: white;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.placeCard:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.2);
+}
+
+.placeCard:active {
+    transform: scale(0.98);
+}
+
+
+/* 카드 대표 사진 */
+
+.placeCard img {
+    width: clamp(75px, 9vw, 145px);
+    height: 100%;
+
+    min-height: 85px;
+    max-height: 150px;
+
+    flex-shrink: 0;
+
+    object-fit: cover;
+
+    border-radius: 10px;
+}
+
+
+/* 카드 설명 */
+
+.placeText {
+    min-width: 0;
+    flex: 1;
+}
+
+.placeText h2 {
+    margin: 0 0 8px;
+
+    color: #222;
+
+    font-size: clamp(16px, 1.5vw, 23px);
+    font-weight: 800;
+}
+
+.placeText p {
+    margin: 0;
+
+    color: #666;
+
+    font-size: clamp(11px, 1vw, 15px);
+    line-height: 1.5;
+
+    word-break: keep-all;
+}
+
+
+/* =========================
+   화면 비율 대응
+========================= */
+
+/* 가로 화면이면서 높이가 낮은 경우 */
+@media (orientation: landscape) and (max-height: 550px) {
+
+    #homeLeft {
+        padding: 12px 25px;
+    }
+
+    #homeLeft h1 {
+        font-size: clamp(20px, 3vw, 30px);
+        margin-bottom: 8px;
+    }
+
+    #homeRight {
+        padding: 10px;
+    }
+
+    #placeList {
+        gap: 7px;
+    }
+
+    .placeCard {
+        flex-basis: 95px;
+        padding: 7px;
+    }
+
+    .placeCard img {
+        width: 75px;
+        min-height: 65px;
+    }
+
+    .placeText h2 {
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .placeText p {
+        font-size: 11px;
+    }
+
+}
         /* 파노라마 화면 */
         #viewer {
             display: none;
@@ -292,6 +492,47 @@
                 font-size: 14px;
             }
         }
+
+        /* 서광장 돋보기 이미지 */
+.imagePin {
+    padding: 0;
+    background: none;
+}
+
+.imagePin img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+}
+
+/* 서광장 이미지 팝업 */
+#westSquarePopup {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0,0,0,0.7);
+    padding: 30px;
+}
+
+#westSquarePopup.active {
+    display: flex;
+}
+
+#westSquarePopup img {
+    display: block;
+
+    max-width: 90%;
+    max-height: 85%;
+
+    object-fit: contain;
+    border-radius: 12px;
+}
     </style>
 </head>
 
@@ -304,21 +545,124 @@
     </div>
 
     <!-- 시작 화면 -->
-    <div id="startScreen">
-        <h1>장소를 선택하세요</h1>
+    <!-- =========================
+     메인 홈 화면
+========================= -->
 
-        <button class="startButton" data-start="hyeonchungmun">
-            1. 현충원
-        </button>
+<div id="startScreen">
 
-        <button class="startButton" data-start="westSquare">
-            2. 대전역
-        </button>
+    <!-- 왼쪽 영역 -->
+    <section id="homeLeft">
 
-        <button class="startButton" data-start="memorialTower">
-            3. 대전형무소
-        </button>
-    </div>
+        <h1>
+            대전으로 떠나는<br>
+            근현대전 파노라마
+        </h1>
+
+        <div id="mapImageBox">
+            <img
+                src="daejeonmap.png"
+                alt="대전 지도와 장소 위치"
+                id="daejeonMap"
+            >
+        </div>
+
+    </section>
+
+
+    <!-- 오른쪽 영역 -->
+    <section id="homeRight">
+
+        <div id="placeList">
+
+            <!-- 현충원 -->
+            <button
+                class="placeCard"
+                data-start="hyeonchungmun"
+                type="button"
+            >
+                <img
+                    src="hyeonchungwon.png"
+                    alt="현충원"
+                >
+
+                <div class="placeText">
+                    <h2>현충원</h2>
+                    <p>
+                        나라를 위해 희생한 순국선열과
+                        호국영령을 기리는 공간
+                    </p>
+                </div>
+            </button>
+
+
+            <!-- 대전역 -->
+            <button
+                class="placeCard"
+                data-start="westSquare"
+                type="button"
+            >
+                <img
+                    src="daejeonstation.png"
+                    alt="대전역"
+                >
+
+                <div class="placeText">
+                    <h2>대전역</h2>
+                    <p>
+                        대전의 철도 교통과 도시 발전의
+                        중심이 된 장소
+                    </p>
+                </div>
+            </button>
+
+
+            <!-- 대전형무소 -->
+            <button
+                class="placeCard"
+                data-start="memorialTower"
+                type="button"
+            >
+                <img
+                    src="memorialTower.png"
+                    alt="대전형무소"
+                >
+
+                <div class="placeText">
+                    <h2>대전형무소</h2>
+                    <p>
+                        대전형무소의 역사와
+                        아픈 기억을 간직한 장소
+                    </p>
+                </div>
+            </button>
+
+
+            <!-- 소제동 -->
+            <button
+                class="placeCard"
+                data-start="sojedongRailwayVillage"
+                type="button"
+            >
+                <img
+                    src="sojedong.png"
+                    alt="소제동"
+                >
+
+                <div class="placeText">
+                    <h2>소제동</h2>
+                    <p>
+                        대전의 근현대 역사와
+                        철도 문화가 남아 있는 지역
+                    </p>
+                </div>
+            </button>
+
+        </div>
+
+    </section>
+
+</div>
 
     <!-- 파노라마 화면 -->
     <div id="viewer">
@@ -351,6 +695,11 @@
         </a>
 
     </div>
+
+    <!-- 서광장 이미지 팝업 -->
+<div id="westSquarePopup">
+    <img src="westSquareInfo.png" alt="대전역 서광장 안내 이미지">
+</div>
 
     <script type="module" src="script.js"></script>
 
