@@ -19,6 +19,8 @@ const infoButton = document.getElementById("infoButton");
 const backButton = document.getElementById("backButton");
 const homeButton = document.getElementById("homeButton");
 
+const westSquarePopup = document.getElementById("westSquarePopup");
+
 
 // ====================
 // 장소 데이터
@@ -77,31 +79,37 @@ const places = {
     // 대전역
     // ====================
 
-    westSquare: {
-        title: "대전역 서광장",
-        panorama: "westSquare.jpg",
-        image: "westSquare.jpg",
-        description: "대전역 서광장입니다.",
-        link: "",
+    // ====================
+// 대전역
+// ====================
 
-        pins: [
-            {
-                title: "동광장으로 이동",
-                target: "eastSquare",
-                yaw: -90,
-                pitch: 2
-            }
-        ]
-    },
+// 대전역 서광장
+westSquare: {
+    title: "대전역 서광장",
+    panorama: "eastSquare.jpg",
+    image: "eastSquare.jpg",
+    description: "대전역 서광장입니다.",
+    link: "",
 
-    eastSquare: {
-        title: "대전역 동광장",
-        panorama: "eastSquare.jpg",
-        image: "eastSquare.jpg",
-        description: "대전역 동광장입니다.",
-        link: "",
-        pins: []
-    },
+    pins: [
+        {
+            title: "동광장으로 이동",
+            target: "eastSquare",
+            yaw: -180,
+            pitch: 2
+        }
+    ]
+},
+
+// 대전역 동광장
+eastSquare: {
+    title: "대전역 동광장",
+    panorama: "westSquare.jpg",
+    image: "westSquare.jpg",
+    description: "대전역 동광장입니다.",
+    link: "",
+    pins: []
+},
 
 
     // ====================
@@ -147,7 +155,43 @@ const places = {
         description: "대전형무소의 역사를 기억하는 공간입니다.",
         link: "",
         pins: []
-    }
+    },
+
+    // ====================
+// 소제동
+// ====================
+
+    // ====================
+// 소제동
+// ====================
+
+// 소제동 철도관사촌 (첫 화면)
+sojedongRailwayVillage: {
+    title: "소제동 철도관사촌",
+    panorama: "sojedongRailwayVillage.jpeg",
+    image: "sojedongRailwayVillage.jpeg",
+    description: "대전 소제동 철도관사촌의 모습을 살펴볼 수 있습니다.",
+    link: "",
+
+    pins: [
+        {
+            title: "소제동 공원으로 이동",
+            target: "sojedongPark",
+            yaw: -180,
+            pitch: 0
+        }
+    ]
+},
+
+// 소제동 공원
+sojedongPark: {
+    title: "소제동 공원",
+    panorama: "sojedong.png",
+    image: "sojedong.png",
+    description: "소제동 공원의 모습을 살펴볼 수 있습니다.",
+    link: "",
+    pins: []
+}
 
 };
 
@@ -260,6 +304,8 @@ function loadPlace(placeId, saveHistory = true) {
 
     const thisLoadToken = ++loadToken;
 
+    westSquarePopup.classList.remove("active"); 
+
     textureLoader.load(
         place.panorama,
 
@@ -321,6 +367,7 @@ function createPins(pins) {
 
     panoramaPins = [];
 
+    // 기존 장소 이동 핀
     pins.forEach((pin) => {
 
         const button = document.createElement("button");
@@ -345,6 +392,48 @@ function createPins(pins) {
         });
 
     });
+
+
+    // 대전역 서광장 전용 돋보기 핀
+    if (
+    currentPlaceId === "westSquare" ||
+    currentPlaceId === "eastSquare"
+) {
+
+        const button = document.createElement("button");
+
+        button.className = "panoramaPin imagePin";
+
+        button.innerHTML = `
+            <img src="magnifier.png" alt="확대해서 보기">
+        `;
+
+        button.addEventListener("click", () => {
+    const popupImage = westSquarePopup.querySelector("img");
+
+    popupImage.src = currentPlaceId === "westSquare"
+        ? "westSquareInfo.png"
+        : "eastSquareInfo.png";
+
+    westSquarePopup.classList.add("active");
+});
+
+        pinLayer.appendChild(button);
+
+        const magnifierPositions = {
+    westSquare: { yaw: -210, pitch: 5 },
+    eastSquare: { yaw: -180, pitch: 0 }
+};
+
+const position = magnifierPositions[currentPlaceId];
+
+panoramaPins.push({
+    element: button,
+    yaw: position.yaw,
+    pitch: position.pitch
+});
+
+    }
 
 }
 
@@ -423,7 +512,11 @@ function updatePinPositions() {
 // 시작 화면 버튼
 // ====================
 
-document.querySelectorAll(".startButton").forEach((button) => {
+// ====================
+// 홈 화면 장소 카드
+// ====================
+
+document.querySelectorAll(".placeCard").forEach((button) => {
 
     button.addEventListener("click", () => {
 
@@ -481,7 +574,7 @@ function goHome() {
 
     viewer.style.display = "none";
 
-    startScreen.style.display = "flex";
+    startScreen.style.display = "grid";
 
     backButton.style.display = "none";
     homeButton.style.display = "none";
@@ -690,5 +783,15 @@ window.addEventListener("resize", () => {
     renderer.setPixelRatio(
         Math.min(window.devicePixelRatio, 2)
     );
+
+});
+
+// 서광장 이미지 팝업 닫기
+westSquarePopup.addEventListener("click", (event) => {
+
+    // 팝업 이미지 바깥을 클릭했을 때만 닫기
+    if (event.target === westSquarePopup) {
+        westSquarePopup.classList.remove("active");
+    }
 
 });
