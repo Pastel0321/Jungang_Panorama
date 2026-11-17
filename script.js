@@ -14,7 +14,6 @@ const infoImage = document.getElementById("infoImage");
 const infoTitle = document.getElementById("infoTitle");
 const infoDescription = document.getElementById("infoDescription");
 const infoClose = document.getElementById("infoClose");
-const infoButton = document.getElementById("infoButton");
 
 const backButton = document.getElementById("backButton");
 const homeButton = document.getElementById("homeButton");
@@ -58,7 +57,7 @@ const places = {
             {
                 title: "호국철도기념관 (내부)",
                 target: "railwayInside",
-                yaw: -180,
+                yaw: -170,
                 pitch: 0 
             }
         ]
@@ -108,7 +107,15 @@ eastSquare: {
     image: "westSquare.jpg",
     description: "대전역 동광장입니다.",
     link: "",
-    pins: []
+
+    pins: [
+    {
+        title: "소제동 공원으로 이동",
+        target: "sojedongPark",
+        yaw: -280,
+        pitch: 2
+    }
+]
 },
 
 
@@ -118,8 +125,8 @@ eastSquare: {
 
     memorialTower: {
         title: "대전형무소 추모탑",
-        panorama: "memorialTower.jpg",
-        image: "memorialTower.jpg",
+        panorama: "memorialTower.jpeg",
+        image: "memorialTower.jpeg",
         description: "대전형무소의 역사를 기억하기 위한 추모탑입니다.",
         link: "",
 
@@ -127,14 +134,20 @@ eastSquare: {
             {
                 title: "1. 우물",
                 target: "well",
-                yaw: -270,
-                pitch: 0
+                yaw: -180,
+                pitch: -5
             },
             {
                 title: "2. 기억의 터",
                 target: "memorySite",
-                yaw: -180,
-                pitch: 0
+                yaw: -50,
+                pitch: -6
+            },
+            {
+                title: "3. 벽돌벽",
+                target: "brickWall",
+                yaw: -70,
+                pitch: -8
             }
         ]
     },
@@ -147,6 +160,15 @@ eastSquare: {
         link: "",
         pins: []
     },
+
+    brickWall: {
+            title: "벽돌벽",
+            panorama: "brickWall.jpg",
+            image: "brickWall.jpg",
+            description: "대전형무소의 역사를 간직한 벽돌벽입니다.",
+            link: "",
+            pins: []
+        },
 
     memorySite: {
         title: "기억의 터",
@@ -165,29 +187,11 @@ eastSquare: {
 // 소제동
 // ====================
 
-// 소제동 철도관사촌 (첫 화면)
-sojedongRailwayVillage: {
-    title: "소제동 철도관사촌",
-    panorama: "sojedongRailwayVillage.jpeg",
-    image: "sojedongRailwayVillage.jpeg",
-    description: "대전 소제동 철도관사촌의 모습을 살펴볼 수 있습니다.",
-    link: "",
-
-    pins: [
-        {
-            title: "소제동 공원으로 이동",
-            target: "sojedongPark",
-            yaw: -180,
-            pitch: 0
-        }
-    ]
-},
-
 // 소제동 공원
 sojedongPark: {
     title: "소제동 공원",
-    panorama: "sojedong.png",
-    image: "sojedong.png",
+    panorama: "sojedongPark.jpg",
+    image: "sojedongPark.jpg",
     description: "소제동 공원의 모습을 살펴볼 수 있습니다.",
     link: "",
     pins: []
@@ -348,7 +352,6 @@ function loadPlace(placeId, saveHistory = true) {
 
     backButton.style.display = "block";
     homeButton.style.display = "block";
-    infoButton.style.display = "block";
 
     infoPanel.classList.remove("active");
 }
@@ -361,19 +364,16 @@ function loadPlace(placeId, saveHistory = true) {
 // 현재 생성된 핀 목록
 let panoramaPins = [];
 
+
+
 function createPins(pins) {
-
     pinLayer.innerHTML = "";
-
     panoramaPins = [];
 
-    // 기존 장소 이동 핀
+    // 장소 이동 핀 생성
     pins.forEach((pin) => {
-
         const button = document.createElement("button");
-
         button.className = "panoramaPin";
-
         button.innerHTML = `
             <span class="pinIcon">📍</span>
             <span class="pinLabel">${pin.title}</span>
@@ -390,18 +390,105 @@ function createPins(pins) {
             yaw: pin.yaw,
             pitch: pin.pitch
         });
-
     });
 
+    // 장소별 돋보기 설정
+    const magnifierSettings = {
+        westSquare: [
+            {
+                yaw: -210,
+                pitch: 5,
+                image: "westSquareInfo1.png"
+            }
+        ],
 
-    // 대전역 서광장 전용 돋보기 핀
-    if (
-    currentPlaceId === "westSquare" ||
-    currentPlaceId === "eastSquare"
-) {
+        eastSquare: [
+            {
+                yaw: -180,
+                pitch: 0,
+                image: "eastSquareInfo.png"
+            }
+        ],
+        
+        railwayOutside: [
+            {
+                yaw: -190,
+                pitch: 2,
+                image: "railwayOutsideInfo.png"
+            }
+        ],
 
+        railwayInside: [
+            {
+                yaw: -140,
+                pitch: 0,
+                image: "railwayInsideInfo.png"
+            }
+        ],
+
+        sojedongPark: [
+            {
+                yaw: -300,
+                pitch: 0,
+                image: "sojedongParkInfo1.png"
+            },
+            {
+                yaw: -180,
+                pitch: 0,
+                image: "sojedongParkInfo2.png"
+            }
+        ],
+
+        memorialTower: [
+            {
+                yaw: -90,
+                pitch: -6,
+                image: "memorialTowerInfo.png"
+            }
+        ],
+
+        memorySite: [
+            {
+                yaw: -177,
+                pitch: -5,
+                image: "memorySiteInfo1.png"
+            },
+            {
+                yaw: -167,
+                pitch: 0,
+                image: "memorySiteInfo2.png"
+            }
+        ],
+
+        well: [
+            {
+                yaw: -190,
+                pitch: 0,
+                image: "wellInfo.png"
+            }
+        ],
+
+        brickWall: [
+            {
+                yaw: -195,
+                pitch: -5,
+                image: "brickWallInfo1.png"
+            },
+            {
+                yaw: -160,
+                pitch: -5,
+                image: "brickWallInfo2.png"
+            }
+        ]
+    };
+
+    const magnifiers = magnifierSettings[currentPlaceId];
+
+    if (!magnifiers) return;
+
+    // 돋보기 생성
+    magnifiers.forEach((item) => {
         const button = document.createElement("button");
-
         button.className = "panoramaPin imagePin";
 
         button.innerHTML = `
@@ -409,33 +496,63 @@ function createPins(pins) {
         `;
 
         button.addEventListener("click", () => {
-    const popupImage = westSquarePopup.querySelector("img");
+    const isWestSquare = currentPlaceId === "westSquare";
 
-    popupImage.src = currentPlaceId === "westSquare"
-        ? "westSquareInfo.png"
-        : "eastSquareInfo.png";
+    // 서광장에서만 화살표 표시
+    document.getElementById("popupPrev").style.display =
+        isWestSquare ? "block" : "none";
+
+    document.getElementById("popupNext").style.display =
+        isWestSquare ? "block" : "none";
+
+    if (isWestSquare) {
+        popupImageIndex = 0;
+        showPopupImage();
+    } else {
+        popupImage.src = item.image;
+    }
 
     westSquarePopup.classList.add("active");
 });
 
         pinLayer.appendChild(button);
 
-        const magnifierPositions = {
-    westSquare: { yaw: -210, pitch: 5 },
-    eastSquare: { yaw: -180, pitch: 0 }
-};
+        panoramaPins.push({
+            element: button,
+            yaw: item.yaw,
+            pitch: item.pitch
+        });
+    });
+}
 
-const position = magnifierPositions[currentPlaceId];
 
-panoramaPins.push({
-    element: button,
-    yaw: position.yaw,
-    pitch: position.pitch
+const popupImages = [
+    "westSquareInfo1.png",
+    "westSquareInfo2.png"
+];
+
+let popupImageIndex = 0;
+
+const popupImage = document.getElementById("popupImage");
+
+function showPopupImage() {
+    popupImage.src = popupImages[popupImageIndex];
+}
+
+document.getElementById("popupPrev").addEventListener("click", () => {
+    popupImageIndex =
+        (popupImageIndex - 1 + popupImages.length) % popupImages.length;
+    showPopupImage();
 });
 
-    }
+document.getElementById("popupNext").addEventListener("click", () => {
+    popupImageIndex =
+        (popupImageIndex + 1) % popupImages.length;
+    showPopupImage();
+});
 
-}
+
+
 
 // ====================
 // 3D 파노라마 핀 위치 계산
@@ -578,7 +695,6 @@ function goHome() {
 
     backButton.style.display = "none";
     homeButton.style.display = "none";
-    infoButton.style.display = "none";
 
     infoPanel.classList.remove("active");
 
@@ -587,35 +703,6 @@ function goHome() {
 
 homeButton.addEventListener("click", goHome);
 
-
-// ====================
-// 정보 팝업
-// ====================
-
-infoButton.addEventListener("click", () => {
-
-    const place = places[currentPlaceId];
-
-    if (!place) return;
-
-    infoTitle.textContent = place.title;
-
-    infoDescription.textContent = place.description;
-
-    infoImage.src = place.image;
-
-    const detailButton = document.getElementById("detailButton");
-
-    if (place.link) {
-        detailButton.href = place.link;
-        detailButton.style.display = "inline-block";
-    } else {
-        detailButton.style.display = "none";
-    }
-
-    infoPanel.classList.add("active");
-
-});
 
 
 infoClose.addEventListener("click", () => {
