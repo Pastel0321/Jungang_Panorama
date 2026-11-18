@@ -443,7 +443,7 @@ function createPins(pins) {
             {
                 yaw: -90,
                 pitch: -6,
-                image: "memorialTowerInfo.png"
+                image: "memorialTowerInfo1.png"
             }
         ],
 
@@ -496,16 +496,15 @@ function createPins(pins) {
         `;
 
         button.addEventListener("click", () => {
-    const isWestSquare = currentPlaceId === "westSquare";
+    const hasMultipleImages = popupImages[currentPlaceId];
 
-    // 서광장에서만 화살표 표시
     document.getElementById("popupPrev").style.display =
-        isWestSquare ? "block" : "none";
+        hasMultipleImages ? "block" : "none";
 
     document.getElementById("popupNext").style.display =
-        isWestSquare ? "block" : "none";
+        hasMultipleImages ? "block" : "none";
 
-    if (isWestSquare) {
+    if (hasMultipleImages) {
         popupImageIndex = 0;
         showPopupImage();
     } else {
@@ -526,28 +525,43 @@ function createPins(pins) {
 }
 
 
-const popupImages = [
-    "westSquareInfo1.png",
-    "westSquareInfo2.png"
-];
+const popupImages = {
+    westSquare: [
+        "westSquareInfo1.png",
+        "westSquareInfo2.png"
+    ],
+    memorialTower: [
+        "memorialTowerInfo1.png",
+        "memorialTowerInfo2.png"
+    ]
+};
 
 let popupImageIndex = 0;
 
 const popupImage = document.getElementById("popupImage");
 
 function showPopupImage() {
-    popupImage.src = popupImages[popupImageIndex];
+    popupImage.src =
+        popupImages[currentPlaceId][popupImageIndex];
 }
 
 document.getElementById("popupPrev").addEventListener("click", () => {
+    const images = popupImages[currentPlaceId];
+    if (!images) return;
+
     popupImageIndex =
-        (popupImageIndex - 1 + popupImages.length) % popupImages.length;
+        (popupImageIndex - 1 + images.length) % images.length;
+
     showPopupImage();
 });
 
 document.getElementById("popupNext").addEventListener("click", () => {
+    const images = popupImages[currentPlaceId];
+    if (!images) return;
+
     popupImageIndex =
-        (popupImageIndex + 1) % popupImages.length;
+        (popupImageIndex + 1) % images.length;
+
     showPopupImage();
 });
 
