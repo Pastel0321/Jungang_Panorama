@@ -92,7 +92,7 @@ westSquare: {
 
     pins: [
         {
-            title: "동광장으로 이동",
+            title: "대전역 (동광장)",
             target: "eastSquare",
             yaw: -180,
             pitch: 2
@@ -110,7 +110,7 @@ eastSquare: {
 
     pins: [
     {
-        title: "소제동 공원으로 이동",
+        title: "소제중앙문화공원",
         target: "sojedongPark",
         yaw: -280,
         pitch: 2
@@ -132,19 +132,19 @@ eastSquare: {
 
         pins: [
             {
-                title: "1. 우물",
+                title: "우물",
                 target: "well",
                 yaw: -180,
                 pitch: -5
             },
             {
-                title: "2. 기억의 터",
+                title: "기억의 터",
                 target: "memorySite",
                 yaw: -50,
                 pitch: -6
             },
             {
-                title: "3. 벽돌벽",
+                title: "기억의 터",
                 target: "brickWall",
                 yaw: -70,
                 pitch: -8
@@ -189,7 +189,7 @@ eastSquare: {
 
 // 소제동 공원
 sojedongPark: {
-    title: "소제동 공원",
+    title: "소제중앙문화공원",
     panorama: "sojedongPark.jpg",
     image: "sojedongPark.jpg",
     description: "소제동 공원의 모습을 살펴볼 수 있습니다.",
